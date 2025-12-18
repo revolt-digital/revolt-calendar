@@ -2,6 +2,7 @@
 
 import { Card } from "@/components/ui/card"
 import type { Holiday } from "@/lib/sanity"
+import { parseDateString } from "@/lib/utils"
 
 interface HolidayLegendProps {
   holidays: Holiday[]
@@ -14,22 +15,8 @@ export function HolidayLegend({ holidays }: HolidayLegendProps) {
       <div className="space-y-3 max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-transparent">
         {holidays.map((holiday) => {
           // Parse dates without timezone conversion
-          const startDateStr = holiday.startDate
-          const endDateStr = holiday.endDate
-          
-          const startParts = startDateStr.split('-')
-          const endParts = endDateStr.split('-')
-          
-          const start = new Date(
-            parseInt(startParts[0]), 
-            parseInt(startParts[1]) - 1, // Month is 0-indexed
-            parseInt(startParts[2])
-          )
-          const end = new Date(
-            parseInt(endParts[0]), 
-            parseInt(endParts[1]) - 1, // Month is 0-indexed
-            parseInt(endParts[2])
-          )
+          const start = parseDateString(holiday.startDate)
+          const end = parseDateString(holiday.endDate)
           
           const isSingleDay = start.toDateString() === end.toDateString()
 

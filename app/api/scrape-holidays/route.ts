@@ -1,6 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@sanity/client'
 
+/**
+ * Parse a date string in YYYY-MM-DD format without timezone conversion issues.
+ */
+function parseDateString(dateString: string): Date {
+  const parts = dateString.split('-')
+  if (parts.length !== 3) {
+    throw new Error(`Invalid date format: ${dateString}. Expected YYYY-MM-DD`)
+  }
+  const year = parseInt(parts[0], 10)
+  const month = parseInt(parts[1], 10) - 1 // Month is 0-indexed
+  const day = parseInt(parts[2], 10)
+  return new Date(year, month, day)
+}
+
 interface HolidayData {
   name: string
   date: string
@@ -72,8 +86,8 @@ async function fetchHolidaysFromAPI(year: string = '2025'): Promise<HolidayData[
       throw new Error(`API returned only ${holidays.length} holidays, expected at least 5`)
     }
     
-    // Ordenar por fecha
-    holidays.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    // Ordenar por fecha (usando parseDateString para evitar problemas de zona horaria)
+    holidays.sort((a, b) => parseDateString(a.date).getTime() - parseDateString(b.date).getTime())
     
     console.log(`✅ Successfully processed ${holidays.length} holidays from API`)
     holidays.forEach(holiday => {

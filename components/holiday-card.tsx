@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { CheckCircle, XCircle, Clock, Briefcase, CheckSquare } from "lucide-react"
 import { type Holiday } from "@/lib/sanity"
+import { parseDateString } from "@/lib/utils"
 
 interface HolidayCardProps {
   holiday: Holiday
@@ -79,7 +80,7 @@ export function HolidayCard({
             </div>
             <div className="grid grid-cols-1 gap-2 text-sm text-muted-foreground">
               <div>
-                <span className="font-medium">Date:</span> {new Date(holiday.startDate).toLocaleDateString('en-US', { 
+                <span className="font-medium">Date:</span> {parseDateString(holiday.startDate).toLocaleDateString('en-US', { 
                   weekday: 'long', 
                   year: 'numeric', 
                   month: 'long', 

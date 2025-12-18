@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import type { Holiday } from "@/lib/sanity"
-import { cn } from "@/lib/utils"
+import { cn, parseDateString } from "@/lib/utils"
 
 interface CalendarGridProps {
   holidays: Holiday[]
@@ -71,23 +71,8 @@ export function CalendarGrid({ holidays, year, onYearChange }: CalendarGridProps
     const map = new Map<string, Holiday[]>()
     holidays.forEach((holiday) => {
       // Parse dates without timezone conversion
-      const startDateStr = holiday.startDate
-      const endDateStr = holiday.endDate
-      
-      // Extract year, month, day from date strings (YYYY-MM-DD format)
-      const startParts = startDateStr.split('-')
-      const endParts = endDateStr.split('-')
-      
-      const startDate = new Date(
-        parseInt(startParts[0]), 
-        parseInt(startParts[1]) - 1, // Month is 0-indexed
-        parseInt(startParts[2])
-      )
-      const endDate = new Date(
-        parseInt(endParts[0]), 
-        parseInt(endParts[1]) - 1, // Month is 0-indexed
-        parseInt(endParts[2])
-      )
+      const startDate = parseDateString(holiday.startDate)
+      const endDate = parseDateString(holiday.endDate)
 
       for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
         const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`
@@ -154,20 +139,10 @@ export function CalendarGrid({ holidays, year, onYearChange }: CalendarGridProps
                 <div className="text-slate-300">{dayHolidays[0].description}</div>
               )}
               <div className="text-slate-400">
-                {(() => {
-                  // Parse date without timezone conversion (same method used elsewhere)
-                  const dateStr = dayHolidays[0].startDate
-                  const parts = dateStr.split('-')
-                  const date = new Date(
-                    parseInt(parts[0]), 
-                    parseInt(parts[1]) - 1, // Month is 0-indexed
-                    parseInt(parts[2])
-                  )
-                  return date.toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                  })
-                })()}
+                {parseDateString(dayHolidays[0].startDate).toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                })}
               </div>
               {/* Arrow */}
               <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-slate-900"></div>
