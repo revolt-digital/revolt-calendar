@@ -167,29 +167,33 @@ export function CalendarGrid({ holidays, year, onYearChange }: CalendarGridProps
     )
   }
 
+  const YearNavigation = () => (
+    <div className="flex items-center justify-center gap-6">
+      <Button
+        variant="outline"
+        size="icon"
+        onClick={() => onYearChange(year - 1)}
+        disabled={year <= 2025}
+        className="transition-all duration-300 hover:scale-110 hover:border-primary disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        <ChevronLeft className="h-5 w-5" />
+      </Button>
+      <h2 className="text-4xl font-bold text-foreground transition-all duration-500">{year}</h2>
+      <Button
+        variant="outline"
+        size="icon"
+        onClick={() => onYearChange(year + 1)}
+        className="transition-all duration-300 hover:scale-110 hover:border-primary"
+      >
+        <ChevronRight className="h-5 w-5" />
+      </Button>
+    </div>
+  )
+
   return (
     <div className="space-y-8">
-      {/* Year Navigation */}
-      <div className="flex items-center justify-center gap-6">
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => onYearChange(year - 1)}
-          disabled={year <= 2025}
-          className="transition-all duration-300 hover:scale-110 hover:border-primary disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <ChevronLeft className="h-5 w-5" />
-        </Button>
-        <h2 className="text-4xl font-bold text-foreground transition-all duration-500">{year}</h2>
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => onYearChange(year + 1)}
-          className="transition-all duration-300 hover:scale-110 hover:border-primary"
-        >
-          <ChevronRight className="h-5 w-5" />
-        </Button>
-      </div>
+      {/* Year Navigation - Top */}
+      <YearNavigation />
 
       {/* Calendar Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -199,6 +203,9 @@ export function CalendarGrid({ holidays, year, onYearChange }: CalendarGridProps
           </div>
         ))}
       </div>
+
+      {/* Year Navigation - Bottom */}
+      <YearNavigation />
     </div>
   )
 }
