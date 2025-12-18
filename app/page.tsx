@@ -5,11 +5,13 @@ import Image from "next/image"
 import { CalendarGrid } from "@/components/calendar-grid"
 import { ColorLegend } from "@/components/color-legend"
 import { getHolidays, type Holiday } from "@/lib/sanity"
+import { cn } from "@/lib/utils"
 
 export default function Home() {
   const [year, setYear] = useState(Math.max(new Date().getFullYear(), 2025))
   const [holidays, setHolidays] = useState<Holiday[]>([])
   const [loading, setLoading] = useState(true)
+  const [isScrolled, setIsScrolled] = useState(false)
 
   useEffect(() => {
     const fetchHolidays = async () => {
@@ -21,11 +23,23 @@ export default function Home() {
     fetchHolidays()
   }, [year])
 
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50)
+    }
+
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
   return (
     <main className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-border/50 bg-card/30 backdrop-blur-sm sticky top-0 z-40">
-        <div className="container mx-auto px-4 py-3">
+      {/* Header - Se oculta al hacer scroll */}
+      <header className={cn(
+        "bg-card/30 backdrop-blur-sm sticky top-0 z-40 transition-transform duration-300",
+        isScrolled && "-translate-y-full"
+      )}>
+        <div className="container mx-auto px-4 pt-3 pb-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="w-8 h-8 rounded-lg overflow-hidden shadow-lg">
@@ -46,6 +60,20 @@ export default function Home() {
         </div>
       </header>
 
+      {/* Color Legend - Sticky arriba */}
+      {!loading && (
+        <div className={cn(
+          "bg-card/30 backdrop-blur-sm sticky z-30 py-4 transition-all duration-300",
+          isScrolled ? "top-0" : "top-[73px]"
+        )}>
+          <div className="container mx-auto px-4">
+            <div className="flex justify-center">
+              <ColorLegend />
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
         {loading ? (
@@ -56,14 +84,10 @@ export default function Home() {
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            <div className="lg:col-span-3">
+          <div>
+            {/* Calendar - Centrado con márgenes laterales de 50px */}
+            <div className="mx-[50px]">
               <CalendarGrid holidays={holidays} year={year} onYearChange={setYear} />
-            </div>
-            <div className="lg:col-span-1">
-              <div className="sticky top-24">
-                <ColorLegend />
-              </div>
             </div>
           </div>
         )}

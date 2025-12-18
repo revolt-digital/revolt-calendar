@@ -30,9 +30,9 @@ export function ColorLegend({ className = "" }: ColorLegendProps) {
   ]
 
   return (
-    <div className={`bg-slate-800/30 rounded-lg border border-slate-700/50 p-4 ${className}`}>
-      <h3 className="text-lg font-semibold mb-3 text-slate-200">Holiday Status</h3>
-      <div className="space-y-3">
+    <div className={`p-4 ${className}`}>
+      <h3 className="text-lg font-semibold mb-4 text-slate-200 text-center">Holiday Status</h3>
+      <div className="flex flex-wrap items-center justify-center gap-10">
         {statusTypes.map((item) => (
           <div key={item.status} className="flex items-center gap-3">
             <div 
