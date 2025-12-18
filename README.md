@@ -1,5 +1,36 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Environment Variables
+
+This project requires the following environment variables to be set:
+
+- `NEXT_PUBLIC_SANITY_PROJECT_ID` - Your Sanity project ID (required)
+- `NEXT_PUBLIC_SANITY_DATASET` - Your Sanity dataset name, typically "production" or "development" (required)
+- `NEXT_PUBLIC_SANITY_API_VERSION` - Sanity API version (optional, defaults to "2025-10-17")
+
+You can find these values in your [Sanity project dashboard](https://www.sanity.io/manage).
+
+### Local Development
+
+Create a `.env.local` file in the root directory:
+
+```bash
+NEXT_PUBLIC_SANITY_PROJECT_ID=your-project-id
+NEXT_PUBLIC_SANITY_DATASET=production
+NEXT_PUBLIC_SANITY_API_VERSION=2025-10-17
+```
+
+### Vercel Deployment
+
+Add these environment variables in your Vercel project settings:
+
+1. Go to your project on [Vercel Dashboard](https://vercel.com/dashboard)
+2. Navigate to **Settings** → **Environment Variables**
+3. Add each variable listed above
+4. Redeploy your project
+
+**Important:** These variables must be set before building, as they are used during the build process.
+
 ## Getting Started
 
 First, run the development server:
