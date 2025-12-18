@@ -34,9 +34,8 @@ export default function HolidayManagement() {
       
       if (result.success) {
         setAllHolidays(result.holidays)
-        // Filtrar solo los pending para la columna izquierda
-        const pendingHolidays = result.holidays.filter((h: Holiday) => h.status === 'pending')
-        setHolidays(pendingHolidays)
+        // La columna izquierda se usa para mostrar feriados temporales del scraping
+        // No filtramos por status aquí, se mantiene vacía hasta hacer scraping
       }
     } catch (error) {
       console.error('Error loading holidays from DB:', error)
@@ -247,7 +246,7 @@ export default function HolidayManagement() {
            }
          }
 
-         const bulkUpdateStatus = async (status: 'approved' | 'working' | 'rejected') => {
+         const bulkUpdateStatus = async (status: 'approved' | 'working' | 'custom') => {
            if (selectedHolidays.size === 0) {
              addToast({
                type: 'warning',
@@ -279,26 +278,24 @@ export default function HolidayManagement() {
 
              setBulkProgress({ current: 0, total: selectedHolidayObjects.length, status: 'Saving holidays...' })
       
-             if (status === 'approved' || status === 'working') {
-               // Solo guardar en Sanity los aprobados o marcados como working
-               const response = await fetch('/api/save-approved-holidays', {
-                 method: 'POST',
-                 headers: {
-                   'Content-Type': 'application/json',
-                 },
-                 body: JSON.stringify({ holidays: selectedHolidayObjects, status }),
-               })
-               
-               const result = await response.json()
-               if (!result.success) {
-                 throw new Error(result.message)
-               }
-               
-               setBulkProgress({ current: selectedHolidayObjects.length, total: selectedHolidayObjects.length, status: 'Updating database...' })
-               
-               // Actualizar la lista de todos los feriados
-               await loadAllHolidaysFromDB()
+             // Guardar en Sanity con el status seleccionado
+             const response = await fetch('/api/save-approved-holidays', {
+               method: 'POST',
+               headers: {
+                 'Content-Type': 'application/json',
+               },
+               body: JSON.stringify({ holidays: selectedHolidayObjects, status }),
+             })
+             
+             const result = await response.json()
+             if (!result.success) {
+               throw new Error(result.message)
              }
+             
+             setBulkProgress({ current: selectedHolidayObjects.length, total: selectedHolidayObjects.length, status: 'Updating database...' })
+             
+             // Actualizar la lista de todos los feriados
+             await loadAllHolidaysFromDB()
              
              setBulkProgress({ current: selectedHolidayObjects.length, total: selectedHolidayObjects.length, status: 'Completing...' })
              
@@ -319,7 +316,7 @@ export default function HolidayManagement() {
            addToast({
              type: 'success',
              title: 'Holidays processed',
-             message: `${selectedHolidayObjects.length} new holidays ${status === 'rejected' ? 'rejected' : 'saved to database'}`
+             message: `${selectedHolidayObjects.length} new holidays saved to database with status: ${status}`
            })
     } catch (error) {
       addToast({
@@ -440,12 +437,12 @@ export default function HolidayManagement() {
                       </Button>
                       <Button
                         size="sm"
-                        onClick={() => bulkUpdateStatus('rejected')}
+                        onClick={() => bulkUpdateStatus('custom')}
                         disabled={bulkLoading}
-                        className="bg-red-500 border-red-500 text-white hover:bg-red-600 hover:border-red-600"
+                        className="bg-purple-500 border-purple-500 text-white hover:bg-purple-600 hover:border-purple-600"
                       >
-                        <XCircle className="w-4 h-4 mr-1" />
-                        Reject
+                        <Briefcase className="w-4 h-4 mr-1" />
+                        Custom
                       </Button>
                     </div>
                   )}
@@ -467,7 +464,7 @@ export default function HolidayManagement() {
               {holidays.length === 0 && !loading && (
                 <Card className="p-8 text-center">
                         <p className="text-muted-foreground">
-                          No pending holidays to review.
+                          No holidays to review. Use "Fetch Holidays" to import holidays from the API.
                         </p>
                 </Card>
               )}

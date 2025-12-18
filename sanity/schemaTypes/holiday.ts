@@ -30,41 +30,18 @@ export const holiday = defineType({
       rows: 3,
     }),
     defineField({
-      name: 'type',
-      title: 'Type',
-      type: 'string',
-      options: {
-        list: [
-          { title: 'Inamovible', value: 'inamovible' },
-          { title: 'Trasladable', value: 'trasladable' },
-          { title: 'No Laborable', value: 'no_laborable' },
-          { title: 'Custom', value: 'custom' },
-        ],
-      },
-      validation: (Rule) => Rule.required(),
-    }),
-    defineField({
       name: 'status',
       title: 'Status',
       type: 'string',
       options: {
         list: [
-          { title: 'Pending', value: 'pending' },
-          { title: 'Approved', value: 'approved' },
-          { title: 'Rejected', value: 'rejected' },
-          { title: 'Working Day', value: 'working' },
+          { title: 'Aprobado', value: 'approved' },
+          { title: 'Working', value: 'working' },
           { title: 'Custom', value: 'custom' },
         ],
       },
-      initialValue: 'pending',
+      initialValue: 'approved',
       validation: (Rule) => Rule.required(),
-    }),
-    defineField({
-      name: 'isOfficial',
-      title: 'Official Holiday',
-      type: 'boolean',
-      description: 'Is this an official government holiday?',
-      initialValue: false,
     }),
   ],
   preview: {
@@ -72,20 +49,17 @@ export const holiday = defineType({
       title: 'name',
       subtitle: 'startDate',
       status: 'status',
-      type: 'type',
     },
-    prepare({ title, subtitle, status, type }) {
+    prepare({ title, subtitle, status }) {
       const statusEmoji = {
-        pending: '⏳',
         approved: '✅',
-        rejected: '❌',
         working: '💼',
         custom: '🏢',
       }
       
       return {
-        title: `${statusEmoji[status as keyof typeof statusEmoji]} ${title}`,
-        subtitle: `${subtitle} • ${type}`,
+        title: `${statusEmoji[status as keyof typeof statusEmoji] || '✅'} ${title}`,
+        subtitle: subtitle,
       }
     },
   },

@@ -28,6 +28,13 @@ export async function POST(request: Request) {
       }, { status: 400 });
     }
 
+    if (!['approved', 'working', 'custom'].includes(status)) {
+      return NextResponse.json({ 
+        success: false, 
+        message: 'Valid status (approved, working, or custom) is required.' 
+      }, { status: 400 });
+    }
+
     // Create patches for all holidays
     const patches = ids.map((id: string) => 
       client.patch(id).set({ status })

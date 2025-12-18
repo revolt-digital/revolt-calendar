@@ -22,21 +22,19 @@ export function HolidayCard({
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'approved': return <CheckCircle className="w-4 h-4 text-green-500" />
-      case 'rejected': return <XCircle className="w-4 h-4 text-red-500" />
       case 'working': return <Briefcase className="w-4 h-4 text-orange-500" />
       case 'custom': return <Briefcase className="w-4 h-4 text-purple-500" />
       case 'existing': return <CheckCircle className="w-4 h-4 text-blue-500" />
-      default: return <Clock className="w-4 h-4 text-yellow-500" />
+      default: return <CheckCircle className="w-4 h-4 text-green-500" />
     }
   }
 
-  const getTypeColor = (type: string) => {
-    switch (type) {
-      case 'inamovible': return 'bg-red-500 text-white'
-      case 'trasladable': return 'bg-orange-500 text-white'
-      case 'no_laborable': return 'bg-blue-500 text-white'
-      case 'custom': return 'bg-purple-500 text-white'
-      default: return 'bg-gray-500 text-white'
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'approved': return { text: 'Aprobado', color: 'bg-green-500 text-white' }
+      case 'working': return { text: 'Working', color: 'bg-orange-500 text-white' }
+      case 'custom': return { text: 'Custom', color: 'bg-purple-500 text-white' }
+      default: return { text: 'Aprobado', color: 'bg-green-500 text-white' }
     }
   }
 
@@ -70,13 +68,19 @@ export function HolidayCard({
           
           <div className="flex-1 min-w-0">
             <div className="grid grid-cols-[auto_1fr_auto] items-center gap-3 mb-2">
-              {getStatusIcon(holiday.status || 'pending')}
+              {getStatusIcon(holiday.status || 'approved')}
               <h3 className="font-semibold truncate min-w-0">
                 {displayName}
               </h3>
-              <Badge className={`${holiday.existsInDB ? 'bg-blue-500 text-white' : getTypeColor(holiday.type || 'custom')} whitespace-nowrap`}>
-                {holiday.existsInDB ? 'Already in DB' : holiday.type}
-              </Badge>
+              {holiday.existsInDB ? (
+                <Badge className="bg-blue-500 text-white whitespace-nowrap">
+                  Already in DB
+                </Badge>
+              ) : (
+                <Badge className={`${getStatusBadge(holiday.status || 'approved').color} whitespace-nowrap`}>
+                  {getStatusBadge(holiday.status || 'approved').text}
+                </Badge>
+              )}
             </div>
             <div className="grid grid-cols-1 gap-2 text-sm text-muted-foreground">
               <div>
@@ -88,7 +92,7 @@ export function HolidayCard({
                 })}
               </div>
               <div>
-                <span className="font-medium">Status:</span> {holiday.existsInDB ? 'Already in Database' : (holiday.status || 'pending')}
+                <span className="font-medium">Status:</span> {holiday.existsInDB ? 'Already in Database' : getStatusBadge(holiday.status || 'approved').text}
               </div>
             </div>
             {holiday.description && (

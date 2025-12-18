@@ -18,10 +18,8 @@ function parseDateString(dateString: string): Date {
 interface HolidayData {
   name: string
   date: string
-  type: string
   description: string
   originalDate: string
-  isOfficial: boolean
 }
 
 interface APIHoliday {
@@ -63,21 +61,11 @@ async function fetchHolidaysFromAPI(year: string = '2025'): Promise<HolidayData[
     
     // Transformar los datos de la API a nuestro formato
     const holidays = data.map((holiday: APIHoliday) => {
-      // Mapear tipos de la API a nuestros tipos
-      let type = 'inamovible' // default
-      if (holiday.tipo === 'trasladable') {
-        type = 'trasladable'
-      } else if (holiday.tipo === 'puente') {
-        type = 'no_laborable'
-      }
-      
       return {
         name: holiday.nombre,
         date: holiday.fecha,
-        type: type,
         description: `Feriado oficial (${holiday.tipo})`,
         originalDate: holiday.fecha,
-        isOfficial: true
       }
     })
     
@@ -91,7 +79,7 @@ async function fetchHolidaysFromAPI(year: string = '2025'): Promise<HolidayData[
     
     console.log(`✅ Successfully processed ${holidays.length} holidays from API`)
     holidays.forEach(holiday => {
-      console.log(`📅 ${holiday.date} - ${holiday.name} (${holiday.type})`)
+      console.log(`📅 ${holiday.date} - ${holiday.name}`)
     })
     
     return holidays
@@ -142,9 +130,7 @@ export async function POST(request: NextRequest) {
           startDate: holiday.date,
           endDate: holiday.date,
           description: holiday.description,
-          type: holiday.type,
-          status: existsInDB ? 'existing' : 'pending',
-          isOfficial: true,
+          status: existsInDB ? 'existing' : 'approved',
           existsInDB: existsInDB,
         }
       })
@@ -192,9 +178,7 @@ export async function POST(request: NextRequest) {
           startDate: holiday.date,
           endDate: holiday.date,
           description: holiday.description,
-          type: holiday.type,
-          status: 'pending',
-          isOfficial: true,
+          status: 'approved',
         }
         
         await client.create(doc)

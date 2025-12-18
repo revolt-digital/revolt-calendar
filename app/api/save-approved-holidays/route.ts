@@ -20,10 +20,10 @@ export async function POST(request: Request) {
       }, { status: 400 })
     }
 
-    if (!status || !['approved', 'working'].includes(status)) {
+    if (!status || !['approved', 'working', 'custom'].includes(status)) {
       return NextResponse.json({ 
         success: false, 
-        message: 'Valid status (approved or working) is required' 
+        message: 'Valid status (approved, working, or custom) is required' 
       }, { status: 400 })
     }
 
@@ -54,9 +54,7 @@ export async function POST(request: Request) {
           startDate: holiday.startDate,
           endDate: holiday.endDate,
           description: holiday.description,
-          type: holiday.type,
           status: status,
-          isOfficial: holiday.isOfficial || true,
         }
         
         await client.create(doc)
