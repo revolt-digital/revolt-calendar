@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { CheckCircle, XCircle, Briefcase, CheckSquare, Square, Loader2, Trash2, ExternalLink } from "lucide-react"
+import { CheckCircle, Briefcase, CheckSquare, Square, Loader2, Trash2, ExternalLink } from "lucide-react"
 import { type Holiday } from "@/lib/sanity"
 import { useToast } from "@/components/ui/toast"
 import { HolidayCard } from "@/components/holiday-card"
@@ -464,7 +464,7 @@ export default function HolidayManagement() {
               {holidays.length === 0 && !loading && (
                 <Card className="p-8 text-center">
                         <p className="text-muted-foreground">
-                          No holidays to review. Use "Fetch Holidays" to import holidays from the API.
+                          No holidays to review. Use &quot;Fetch Holidays&quot; to import holidays from the API.
                         </p>
                 </Card>
               )}

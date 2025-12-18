@@ -2,7 +2,7 @@
 
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { CheckCircle, XCircle, Clock, Briefcase, CheckSquare } from "lucide-react"
+import { CheckCircle, Briefcase, CheckSquare } from "lucide-react"
 import { type Holiday } from "@/lib/sanity"
 import { parseDateString } from "@/lib/utils"
 
