@@ -3,7 +3,7 @@
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { CheckCircle, Briefcase, CheckSquare } from "lucide-react"
-import { type Holiday } from "@/lib/sanity"
+import { type Holiday, getHolidayDisplayName } from "@/lib/sanity"
 import { parseDateString } from "@/lib/utils"
 
 interface HolidayCardProps {
@@ -38,7 +38,7 @@ export function HolidayCard({
     }
   }
 
-  const displayName = holiday.name
+  const displayName = getHolidayDisplayName(holiday)
 
   return (
     <Card 

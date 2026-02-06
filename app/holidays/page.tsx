@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { CheckCircle, Briefcase, CheckSquare, Square, Loader2, Trash2, ExternalLink } from "lucide-react"
+import { CheckCircle, Briefcase, CheckSquare, Square, Loader2, Trash2, ExternalLink, Languages } from "lucide-react"
 import { type Holiday } from "@/lib/sanity"
 import { useToast } from "@/components/ui/toast"
 import { HolidayCard } from "@/components/holiday-card"
@@ -18,6 +18,8 @@ export default function HolidayManagement() {
   const [bulkLoading, setBulkLoading] = useState(false)
   const [bulkProgress, setBulkProgress] = useState({ current: 0, total: 0, status: '' })
   const [scrapeYear, setScrapeYear] = useState('2025')
+  const [translating, setTranslating] = useState(false)
+  const [holidaysNeedingTranslation, setHolidaysNeedingTranslation] = useState(0)
   const { addToast } = useToast()
 
   // Cargar automáticamente todos los feriados al entrar a la página
@@ -34,6 +36,9 @@ export default function HolidayManagement() {
       
       if (result.success) {
         setAllHolidays(result.holidays)
+        // Contar cuántos feriados necesitan traducción
+        const needingTranslation = result.holidays.filter((h: Holiday) => !h.nameEn).length
+        setHolidaysNeedingTranslation(needingTranslation)
         // La columna izquierda se usa para mostrar feriados temporales del scraping
         // No filtramos por status aquí, se mantiene vacía hasta hacer scraping
       }
@@ -178,6 +183,48 @@ export default function HolidayManagement() {
              console.error(error)
            } finally {
              setBulkLoading(false)
+           }
+         }
+
+         const translateHolidays = async () => {
+           setTranslating(true)
+           try {
+             const response = await fetch('/api/translate-holidays', {
+               method: 'POST',
+               headers: {
+                 'Content-Type': 'application/json',
+               },
+             })
+             
+             const result = await response.json()
+             
+             if (result.success) {
+               // Recargar los feriados para mostrar las traducciones
+               await loadAllHolidaysFromDB()
+               
+               addToast({
+                 type: 'success',
+                 title: 'Translation complete',
+                 message: result.translated > 0 
+                   ? `Translated ${result.translated} holidays to English${result.errors > 0 ? ` (${result.errors} errors)` : ''}`
+                   : 'All holidays already have English translations'
+               })
+             } else {
+               addToast({
+                 type: 'error',
+                 title: 'Translation error',
+                 message: result.message || 'Could not translate holidays'
+               })
+             }
+           } catch (error) {
+             addToast({
+               type: 'error',
+               title: 'Error',
+               message: 'Could not translate holidays'
+             })
+             console.error(error)
+           } finally {
+             setTranslating(false)
            }
          }
 
@@ -511,6 +558,30 @@ export default function HolidayManagement() {
                          </div>
                          
                          <div className="flex gap-2">
+                           <Button
+                             size="sm"
+                             onClick={translateHolidays}
+                             disabled={translating || allHolidays.length === 0 || holidaysNeedingTranslation === 0}
+                             className="bg-blue-500 border-blue-500 text-white hover:bg-blue-600 hover:border-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                             title={holidaysNeedingTranslation === 0 ? 'All holidays already translated' : `Translate ${holidaysNeedingTranslation} holiday${holidaysNeedingTranslation !== 1 ? 's' : ''} to English`}
+                           >
+                             {translating ? (
+                               <>
+                                 <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                                 Translating...
+                               </>
+                             ) : (
+                               <>
+                                 <Languages className="w-4 h-4 mr-1" />
+                                 Translate
+                                 {holidaysNeedingTranslation > 0 && (
+                                   <span className="ml-1 bg-blue-600 px-1.5 py-0.5 rounded text-xs">
+                                     {holidaysNeedingTranslation}
+                                   </span>
+                                 )}
+                               </>
+                             )}
+                           </Button>
                            {selectedAllHolidays.size > 0 && (
                              <Button
                                size="sm"

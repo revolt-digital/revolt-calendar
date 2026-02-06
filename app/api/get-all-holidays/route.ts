@@ -19,7 +19,15 @@ export async function GET() {
       }, { status: 500 });
     }
 
-    const query = `*[_type == "holiday"] | order(startDate asc)`;
+    const query = `*[_type == "holiday"] | order(startDate asc) {
+      _id,
+      name,
+      nameEn,
+      startDate,
+      endDate,
+      description,
+      status
+    }`;
     const holidays = await client.fetch(query);
 
     return NextResponse.json({ 

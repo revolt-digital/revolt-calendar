@@ -3,6 +3,7 @@ import { client } from "../sanity/lib/client"
 export interface Holiday {
   _id: string
   name: string
+  nameEn?: string
   startDate: string
   endDate: string
   description?: string
@@ -10,12 +11,27 @@ export interface Holiday {
   existsInDB?: boolean
 }
 
+/**
+ * Get the display name for a holiday, preferring English if available
+ */
+export function getHolidayDisplayName(holiday: Holiday): string {
+  return holiday.nameEn || holiday.name
+}
+
 export async function getHolidays(year: number): Promise<Holiday[]> {
   const query = `*[_type == "holiday" && 
     startDate >= "${year}-01-01" && 
     startDate <= "${year}-12-31" &&
     status in ["approved", "working", "custom"]
-  ] | order(startDate asc)`
+  ] | order(startDate asc) {
+    _id,
+    name,
+    nameEn,
+    startDate,
+    endDate,
+    description,
+    status
+  }`
 
   try {
     const holidays = await client.fetch(query)

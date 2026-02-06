@@ -7,9 +7,15 @@ export const holiday = defineType({
   fields: [
     defineField({
       name: 'name',
-      title: 'Name',
+      title: 'Name (Spanish)',
       type: 'string',
       validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: 'nameEn',
+      title: 'Name (English)',
+      type: 'string',
+      description: 'English translation of the holiday name',
     }),
     defineField({
       name: 'startDate',

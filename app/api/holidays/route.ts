@@ -46,6 +46,7 @@ export async function GET(request: Request) {
     query += `] | order(startDate asc) {
       _id,
       name,
+      nameEn,
       startDate,
       endDate,
       description,

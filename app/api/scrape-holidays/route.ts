@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@sanity/client'
+import { translateHolidayName } from '@/lib/utils'
 
 /**
  * Parse a date string in YYYY-MM-DD format without timezone conversion issues.
@@ -63,6 +64,7 @@ async function fetchHolidaysFromAPI(year: string = '2025'): Promise<HolidayData[
     const holidays = data.map((holiday: APIHoliday) => {
       return {
         name: holiday.nombre,
+        nameEn: translateHolidayName(holiday.nombre),
         date: holiday.fecha,
         description: `Feriado oficial (${holiday.tipo})`,
         originalDate: holiday.fecha,
@@ -127,6 +129,7 @@ export async function POST(request: NextRequest) {
         return {
           _id: `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
           name: holiday.name,
+          nameEn: holiday.nameEn,
           startDate: holiday.date,
           endDate: holiday.date,
           description: holiday.description,
@@ -175,6 +178,7 @@ export async function POST(request: NextRequest) {
         const doc = {
           _type: 'holiday',
           name: holiday.name,
+          nameEn: holiday.nameEn,
           startDate: holiday.date,
           endDate: holiday.date,
           description: holiday.description,
