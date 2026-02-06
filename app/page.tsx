@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import Image from "next/image"
 import { CalendarGrid } from "@/components/calendar-grid"
 import { ColorLegend } from "@/components/color-legend"
+import { LanguageSwitch } from "@/components/language-switch"
 import { getHolidays, type Holiday } from "@/lib/sanity"
 import { cn } from "@/lib/utils"
 
@@ -12,6 +13,7 @@ export default function Home() {
   const [holidays, setHolidays] = useState<Holiday[]>([])
   const [loading, setLoading] = useState(true)
   const [isScrolled, setIsScrolled] = useState(false)
+  const [language, setLanguage] = useState<'en' | 'es'>('en')
 
   useEffect(() => {
     const fetchHolidays = async () => {
@@ -56,6 +58,7 @@ export default function Home() {
                 <p className="text-xs text-muted-foreground">Holiday Calendar</p>
               </div>
             </div>
+            <LanguageSwitch language={language} onLanguageChange={setLanguage} />
           </div>
         </div>
       </header>
@@ -87,7 +90,7 @@ export default function Home() {
           <div>
             {/* Calendar - Centrado con márgenes laterales de 50px */}
             <div className="mx-[50px]">
-              <CalendarGrid holidays={holidays} year={year} onYearChange={setYear} />
+              <CalendarGrid holidays={holidays} year={year} onYearChange={setYear} language={language} />
             </div>
           </div>
         )}

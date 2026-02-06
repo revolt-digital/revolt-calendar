@@ -5,13 +5,14 @@ import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import type { Holiday } from "@/lib/sanity"
-import { getHolidayDisplayName } from "@/lib/sanity"
+import { getHolidayDisplayName, getHolidayDisplayDescription } from "@/lib/sanity"
 import { cn, parseDateString } from "@/lib/utils"
 
 interface CalendarGridProps {
   holidays: Holiday[]
   year: number
   onYearChange: (year: number) => void
+  language?: 'en' | 'es'
 }
 
 const MONTHS = [
@@ -47,7 +48,7 @@ function getHolidayStyle(holiday: Holiday): string {
   }
 }
 
-export function CalendarGrid({ holidays, year, onYearChange }: CalendarGridProps) {
+export function CalendarGrid({ holidays, year, onYearChange, language = 'en' }: CalendarGridProps) {
   const todayRef = useRef<HTMLButtonElement>(null)
   
   // Get today's date
@@ -85,7 +86,7 @@ export function CalendarGrid({ holidays, year, onYearChange }: CalendarGridProps
     })
     
     return map
-  }, [holidays])
+  }, [holidays, language])
 
   const getDaysInMonth = (month: number, year: number) => {
     return new Date(year, month + 1, 0).getDate()
@@ -129,15 +130,15 @@ export function CalendarGrid({ holidays, year, onYearChange }: CalendarGridProps
               ? "bg-white text-slate-900 font-bold shadow-lg hover:shadow-xl ring-2 ring-white/50"
               : "text-slate-300 hover:bg-slate-700/50",
           )}
-          title={isHoliday ? `${getHolidayDisplayName(dayHolidays[0])} - ${dayHolidays[0].description || 'Official holiday'}` : undefined}
+          title={isHoliday ? `${getHolidayDisplayName(dayHolidays[0], language)} - ${getHolidayDisplayDescription(dayHolidays[0], language) || 'Official holiday'}` : undefined}
         >
           {day}
           {/* Tooltip */}
           {isHoliday && (
             <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-slate-900 text-white text-xs rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
-              <div className="font-semibold">{getHolidayDisplayName(dayHolidays[0])}</div>
-              {dayHolidays[0].description && (
-                <div className="text-slate-300">{dayHolidays[0].description}</div>
+              <div className="font-semibold">{getHolidayDisplayName(dayHolidays[0], language)}</div>
+              {getHolidayDisplayDescription(dayHolidays[0], language) && (
+                <div className="text-slate-300">{getHolidayDisplayDescription(dayHolidays[0], language)}</div>
               )}
               <div className="text-slate-400">
                 {parseDateString(dayHolidays[0].startDate).toLocaleDateString("en-US", {

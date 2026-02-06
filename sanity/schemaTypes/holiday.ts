@@ -31,9 +31,16 @@ export const holiday = defineType({
     }),
     defineField({
       name: 'description',
-      title: 'Description',
+      title: 'Description (Spanish)',
       type: 'text',
       rows: 3,
+    }),
+    defineField({
+      name: 'descriptionEn',
+      title: 'Description (English)',
+      type: 'text',
+      rows: 3,
+      description: 'English translation of the description',
     }),
     defineField({
       name: 'status',

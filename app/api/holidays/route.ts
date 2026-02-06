@@ -50,6 +50,7 @@ export async function GET(request: Request) {
       startDate,
       endDate,
       description,
+      descriptionEn,
       status
     }`;
 

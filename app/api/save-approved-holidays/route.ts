@@ -48,7 +48,16 @@ export async function POST(request: Request) {
         }
         
         // Crear el documento en Sanity
-        const doc: any = {
+        const doc: {
+          _type: string
+          name: string
+          startDate: string
+          endDate: string
+          description?: string
+          descriptionEn?: string
+          status: string
+          nameEn?: string
+        } = {
           _type: 'holiday',
           name: holiday.name,
           startDate: holiday.startDate,
@@ -60,6 +69,11 @@ export async function POST(request: Request) {
         // Include nameEn if provided
         if (holiday.nameEn) {
           doc.nameEn = holiday.nameEn
+        }
+        
+        // Include descriptionEn if provided
+        if (holiday.descriptionEn) {
+          doc.descriptionEn = holiday.descriptionEn
         }
         
         await client.create(doc)

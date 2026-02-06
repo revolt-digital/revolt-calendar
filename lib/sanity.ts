@@ -7,15 +7,35 @@ export interface Holiday {
   startDate: string
   endDate: string
   description?: string
+  descriptionEn?: string
   status?: 'approved' | 'working' | 'custom'
   existsInDB?: boolean
 }
 
 /**
- * Get the display name for a holiday, preferring English if available
+ * Get the display description for a holiday based on language preference
+ * @param holiday - The holiday object
+ * @param language - Language preference: 'en' for English, 'es' for Spanish (default: 'en')
  */
-export function getHolidayDisplayName(holiday: Holiday): string {
-  return holiday.nameEn || holiday.name
+export function getHolidayDisplayDescription(holiday: Holiday, language: 'en' | 'es' = 'en'): string | undefined {
+  if (!holiday.description && !holiday.descriptionEn) return undefined
+  
+  if (language === 'en') {
+    return holiday.descriptionEn || holiday.description
+  }
+  return holiday.description
+}
+
+/**
+ * Get the display name for a holiday based on language preference
+ * @param holiday - The holiday object
+ * @param language - Language preference: 'en' for English, 'es' for Spanish (default: 'en')
+ */
+export function getHolidayDisplayName(holiday: Holiday, language: 'en' | 'es' = 'en'): string {
+  if (language === 'en') {
+    return holiday.nameEn || holiday.name
+  }
+  return holiday.name
 }
 
 export async function getHolidays(year: number): Promise<Holiday[]> {
@@ -30,11 +50,12 @@ export async function getHolidays(year: number): Promise<Holiday[]> {
     startDate,
     endDate,
     description,
+    descriptionEn,
     status
   }`
 
   try {
-    const holidays = await client.fetch(query)
+    const holidays = await client.fetch(query, {}, { cache: 'no-store' })
     return holidays
   } catch (error) {
     console.error("Error fetching holidays:", error)

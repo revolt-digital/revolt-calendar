@@ -26,6 +26,7 @@ export async function GET() {
       startDate,
       endDate,
       description,
+      descriptionEn,
       status
     }`;
     const holidays = await client.fetch(query);

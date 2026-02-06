@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@sanity/client'
-import { translateHolidayName } from '@/lib/utils'
+import { translateHolidayName, translateHolidayDescription } from '@/lib/utils'
 
 const client = createClient({
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!,
@@ -26,13 +26,29 @@ export async function POST() {
 
     console.log('🔍 Fetching holidays without English translation...')
     
-    // Fetch all holidays that don't have nameEn yet
-    const holidays = await client.fetch(
-      `*[_type == "holiday" && !defined(nameEn)] {
+    // Fetch all holidays that don't have nameEn or where nameEn equals name (failed translation)
+    const allHolidays = await client.fetch(
+      `*[_type == "holiday"] {
         _id,
         name,
+        nameEn,
+        description,
+        descriptionEn,
         startDate
       }`
+    )
+
+    // Filter holidays that need translation
+    interface HolidayForTranslation {
+      _id: string
+      name: string
+      nameEn?: string
+      description?: string
+      descriptionEn?: string
+      startDate: string
+    }
+    const holidays = allHolidays.filter((h: HolidayForTranslation) => 
+      !h.nameEn || h.nameEn === h.name || !h.descriptionEn
     )
 
     console.log(`📅 Found ${holidays.length} holidays without English translation`)
@@ -52,14 +68,29 @@ export async function POST() {
 
     for (const holiday of holidays) {
       try {
-        const nameEn = translateHolidayName(holiday.name)
+        const updates: { nameEn?: string; descriptionEn?: string } = {}
         
-        console.log(`🔄 Translating: "${holiday.name}" -> "${nameEn}"`)
+        // Translate name if needed
+        if (!holiday.nameEn || holiday.nameEn === holiday.name) {
+          updates.nameEn = translateHolidayName(holiday.name)
+          console.log(`🔄 Translating name: "${holiday.name}" -> "${updates.nameEn}"`)
+        }
         
-        await client
-          .patch(holiday._id)
-          .set({ nameEn })
-          .commit()
+        // Translate description if needed
+        if (holiday.description && !holiday.descriptionEn) {
+          // Extract tipo from description if it matches the pattern "Feriado oficial (tipo)"
+          const tipoMatch = holiday.description.match(/\(([^)]+)\)/)
+          const tipo = tipoMatch ? tipoMatch[1] : undefined
+          updates.descriptionEn = translateHolidayDescription(holiday.description, tipo)
+          console.log(`🔄 Translating description: "${holiday.description}" -> "${updates.descriptionEn}"`)
+        }
+        
+        if (Object.keys(updates).length > 0) {
+          await client
+            .patch(holiday._id)
+            .set(updates)
+            .commit()
+        }
 
         translated++
       } catch (error) {

@@ -22,9 +22,14 @@ const client = createClient({
  * Translate Spanish holiday names to English
  */
 function translateHolidayName(spanishName) {
+  // Normalize input: trim and handle case variations
+  const normalized = spanishName.trim()
+  
   const translations = {
-    // Fixed holidays
+    // Fixed holidays - with different case variations
     'Año Nuevo': 'New Year\'s Day',
+    'Año nuevo': 'New Year\'s Day',
+    'año nuevo': 'New Year\'s Day',
     'Día del Trabajador': 'Labor Day',
     'Día de la Revolución de Mayo': 'May Revolution Day',
     'Día de la Independencia': 'Independence Day',
@@ -35,6 +40,7 @@ function translateHolidayName(spanishName) {
     // Movable holidays
     'Carnaval': 'Carnival',
     'Día de la Memoria por la Verdad y la Justicia': 'Day of Remembrance for Truth and Justice',
+    'Día Nacional de la Memoria por la Verdad y la Justicia': 'National Day of Remembrance for Truth and Justice',
     'Día del Veterano y de los Caídos en la Guerra de Malvinas': 'Veterans Day and Day of the Fallen in the Malvinas War',
     'Pascuas': 'Easter',
     'Viernes Santo': 'Good Friday',
@@ -43,31 +49,66 @@ function translateHolidayName(spanishName) {
     'Paso a la Inmortalidad del General Manuel Belgrano': 'Passing to Immortality of General Manuel Belgrano',
     'Paso a la Inmortalidad del General José de San Martín': 'Passing to Immortality of General José de San Martín',
     'Día del Respeto a la Diversidad Cultural': 'Day of Respect for Cultural Diversity',
+    
+    // Custom/Revolt holidays
+    'Revolt Day Off': 'Revolt Day Off',
+    
+    // Bridge holidays
+    'Puente turístico no laborable': 'Tourist Bridge Holiday',
+    'Puente Turístico No Laborable': 'Tourist Bridge Holiday',
+    'Puente': 'Bridge Holiday',
   }
 
-  // Check for exact match first
-  if (translations[spanishName]) {
-    return translations[spanishName]
+  // Check for exact match first (case-sensitive)
+  if (translations[normalized]) {
+    return translations[normalized]
   }
 
-  // Try to translate "Día de..." patterns
-  if (spanishName.startsWith('Día de ')) {
-    const rest = spanishName.replace('Día de ', '')
-    if (translations[`Día de ${rest}`]) {
-      return translations[`Día de ${rest}`]
+  // Check for case-insensitive match
+  const lowerNormalized = normalized.toLowerCase()
+  for (const [key, value] of Object.entries(translations)) {
+    if (key.toLowerCase() === lowerNormalized) {
+      return value
+    }
+  }
+
+  // Try to translate common patterns
+  
+  // Translate "Día de..." patterns
+  if (normalized.match(/^Día de /i)) {
+    const rest = normalized.replace(/^Día de /i, '')
+    const patternKey = `Día de ${rest}`
+    if (translations[patternKey]) {
+      return translations[patternKey]
     }
     // Generic translation
     return `Day of ${rest}`
   }
 
+  // Translate "Día Nacional de..." patterns
+  if (normalized.match(/^Día Nacional de /i)) {
+    const rest = normalized.replace(/^Día Nacional de /i, '')
+    return `National Day of ${rest}`
+  }
+
   // Translate "Paso a la Inmortalidad de..." patterns
-  if (spanishName.includes('Paso a la Inmortalidad')) {
-    const person = spanishName.replace('Paso a la Inmortalidad del General ', '').replace('Paso a la Inmortalidad de ', '')
+  if (normalized.includes('Paso a la Inmortalidad')) {
+    const person = normalized
+      .replace(/Paso a la Inmortalidad del General /i, '')
+      .replace(/Paso a la Inmortalidad de /i, '')
     return `Passing to Immortality of General ${person}`
   }
 
+  // Translate "Puente..." patterns
+  if (normalized.toLowerCase().includes('puente')) {
+    if (normalized.toLowerCase().includes('turístico')) {
+      return 'Tourist Bridge Holiday'
+    }
+    return 'Bridge Holiday'
+  }
+
   // If no translation found, return original (can be manually edited later)
-  return spanishName
+  return normalized
 }
 
 async function translateHolidays() {

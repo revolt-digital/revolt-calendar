@@ -3,7 +3,7 @@
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { CheckCircle, Briefcase, CheckSquare } from "lucide-react"
-import { type Holiday, getHolidayDisplayName } from "@/lib/sanity"
+import { type Holiday } from "@/lib/sanity"
 import { parseDateString } from "@/lib/utils"
 
 interface HolidayCardProps {
@@ -38,8 +38,6 @@ export function HolidayCard({
     }
   }
 
-  const displayName = getHolidayDisplayName(holiday)
-
   return (
     <Card 
       className={`p-4 transition-colors relative ${
@@ -69,9 +67,11 @@ export function HolidayCard({
           <div className="flex-1 min-w-0">
             <div className="grid grid-cols-[auto_1fr_auto] items-center gap-3 mb-2">
               {getStatusIcon(holiday.status || 'approved')}
-              <h3 className="font-semibold truncate min-w-0">
-                {displayName}
-              </h3>
+              <div className="flex-1 min-w-0">
+                <h3 className="font-semibold text-white truncate min-w-0">
+                  {holiday.name}
+                </h3>
+              </div>
               {holiday.existsInDB ? (
                 <Badge className="bg-blue-500 text-white whitespace-nowrap">
                   Already in DB
@@ -82,8 +82,13 @@ export function HolidayCard({
                 </Badge>
               )}
             </div>
-            <div className="grid grid-cols-1 gap-2 text-sm text-muted-foreground">
-              <div>
+            <div className="grid grid-cols-1 gap-2 text-sm">
+              {holiday.nameEn && (
+                <div className="font-semibold text-white">
+                  {holiday.nameEn}
+                </div>
+              )}
+              <div className="text-muted-foreground">
                 <span className="font-medium">Date:</span> {parseDateString(holiday.startDate).toLocaleDateString('en-US', { 
                   weekday: 'long', 
                   year: 'numeric', 
@@ -95,10 +100,15 @@ export function HolidayCard({
                 <span className="font-medium">Status:</span> {holiday.existsInDB ? 'Already in Database' : getStatusBadge(holiday.status || 'approved').text}
               </div>
             </div>
-            {holiday.description && (
-              <p className="text-sm text-muted-foreground mt-2">
-                {holiday.description}
-              </p>
+            {(holiday.description || holiday.descriptionEn) && (
+              <div className="text-sm text-muted-foreground mt-2 space-y-1">
+                {holiday.description && (
+                  <p>{holiday.description}</p>
+                )}
+                {holiday.descriptionEn && holiday.descriptionEn !== holiday.description && (
+                  <p className="text-white">{holiday.descriptionEn}</p>
+                )}
+              </div>
             )}
           </div>
         </div>

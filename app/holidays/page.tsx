@@ -37,7 +37,10 @@ export default function HolidayManagement() {
       if (result.success) {
         setAllHolidays(result.holidays)
         // Contar cuántos feriados necesitan traducción
-        const needingTranslation = result.holidays.filter((h: Holiday) => !h.nameEn).length
+        // Un feriado necesita traducción si no tiene nameEn o si nameEn es igual a name (traducción fallida)
+        const needingTranslation = result.holidays.filter((h: Holiday) => 
+          !h.nameEn || h.nameEn === h.name
+        ).length
         setHolidaysNeedingTranslation(needingTranslation)
         // La columna izquierda se usa para mostrar feriados temporales del scraping
         // No filtramos por status aquí, se mantiene vacía hasta hacer scraping
@@ -199,6 +202,9 @@ export default function HolidayManagement() {
              const result = await response.json()
              
              if (result.success) {
+               // Esperar un poco para que Sanity procese los cambios
+               await new Promise(resolve => setTimeout(resolve, 500))
+               
                // Recargar los feriados para mostrar las traducciones
                await loadAllHolidaysFromDB()
                
@@ -562,7 +568,7 @@ export default function HolidayManagement() {
                              size="sm"
                              onClick={translateHolidays}
                              disabled={translating || allHolidays.length === 0 || holidaysNeedingTranslation === 0}
-                             className="bg-blue-500 border-blue-500 text-white hover:bg-blue-600 hover:border-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                             className="bg-red-500 border-red-500 text-white hover:bg-red-600 hover:border-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
                              title={holidaysNeedingTranslation === 0 ? 'All holidays already translated' : `Translate ${holidaysNeedingTranslation} holiday${holidaysNeedingTranslation !== 1 ? 's' : ''} to English`}
                            >
                              {translating ? (
