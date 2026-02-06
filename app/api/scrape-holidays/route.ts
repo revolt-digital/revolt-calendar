@@ -21,6 +21,7 @@ interface HolidayData {
   nameEn: string
   date: string
   description: string
+  descriptionEn: string
   originalDate: string
 }
 

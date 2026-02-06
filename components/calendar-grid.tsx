@@ -86,7 +86,7 @@ export function CalendarGrid({ holidays, year, onYearChange, language = 'en' }: 
     })
     
     return map
-  }, [holidays, language])
+  }, [holidays])
 
   const getDaysInMonth = (month: number, year: number) => {
     return new Date(year, month + 1, 0).getDate()
